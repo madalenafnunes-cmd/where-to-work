@@ -429,21 +429,6 @@ export default function Map() {
         </div>
       )}
 
-      {/* Tagline (top-left) */}
-      <div
-        className="absolute left-4 top-4 z-[1000] rounded-full px-4 py-2.5 shadow-soft"
-        style={{
-          fontFamily: "var(--font-fraunces), ui-serif, Georgia, serif",
-          fontSize: "0.875rem",
-          fontStyle: "italic",
-          background: "rgba(255, 255, 255, 0.95)",
-          color: "var(--ink)",
-          backdropFilter: "blur(8px)",
-        }}
-      >
-        find where to work near you
-      </div>
-
       {/* Favorites button (top-right) */}
       <button
         onClick={() => setFavPanelOpen(true)}
