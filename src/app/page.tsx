@@ -30,12 +30,12 @@ export default function Home() {
 
       {/* Map area + toggle button */}
       <div className="flex-1 flex flex-col relative">
-        {/* Sidebar toggle (visible on desktop when sidebar is collapsed, hidden on mobile) */}
+        {/* Sidebar toggle (on the edge of sidebar, centered vertically) */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="hidden md:flex absolute left-4 top-4 z-[500] h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition"
+          className="hidden md:flex fixed top-1/2 z-[500] h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition -translate-y-1/2"
+          style={{ left: sidebarOpen ? "calc(380px - 22px)" : "calc(-22px)", color: "var(--ink)" }}
           aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-          style={{ color: "var(--ink)" }}
         >
           {sidebarOpen ? (
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
