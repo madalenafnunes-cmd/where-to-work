@@ -16,6 +16,7 @@ const Map = dynamic(() => import("@/components/Map"), {
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
     <main className="h-dvh w-dvw flex flex-col md:flex-row bg-[var(--bg)]">
@@ -52,10 +53,11 @@ export default function Home() {
 
         {/* Mobile: Hamburger menu (bottom-left) */}
         <button
-          onClick={() => setSidebarOpen(true)}
-          className="md:hidden absolute left-4 bottom-4 z-[500] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition"
+          onClick={() => setDrawerOpen(true)}
+          className="md:hidden fixed left-4 bottom-4 z-[500] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition pointer-events-auto"
           style={{ color: "var(--ink)" }}
           aria-label="Open filters"
+          type="button"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="3" y1="6" x2="21" y2="6" />
@@ -65,12 +67,12 @@ export default function Home() {
         </button>
 
         {/* Mobile sidebar drawer */}
-        {sidebarOpen && (
+        {drawerOpen && (
           <div className="md:hidden fixed inset-0 z-[400] flex flex-col">
             {/* Overlay */}
             <div
               className="flex-1 bg-black/20 backdrop-blur-sm"
-              onClick={() => setSidebarOpen(false)}
+              onClick={() => setDrawerOpen(false)}
             />
             {/* Drawer */}
             <div className="bg-[var(--surface)] max-h-[75vh] overflow-y-auto rounded-t-2xl shadow-soft">
@@ -81,7 +83,7 @@ export default function Home() {
               {/* Close button for drawer */}
               <div className="p-4 border-t border-[var(--line)]">
                 <button
-                  onClick={() => setSidebarOpen(false)}
+                  onClick={() => setDrawerOpen(false)}
                   className="w-full rounded-full px-4 py-3 text-sm font-medium transition"
                   style={{ background: "var(--accent)", color: "white" }}
                 >
