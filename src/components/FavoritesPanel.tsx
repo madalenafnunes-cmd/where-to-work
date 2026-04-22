@@ -55,7 +55,7 @@ export default function FavoritesPanel({ userLoc, onPick, onClose }: Props) {
     <div
       className="
         fixed inset-x-0 bottom-0 z-[1100] max-h-[85dvh] rounded-t-2xl bg-white shadow-2xl ring-1 ring-black/5
-        md:inset-y-0 md:left-0 md:right-auto md:bottom-auto md:top-0 md:h-full md:max-h-none md:w-[420px] md:rounded-none md:rounded-r-2xl
+        md:inset-y-0 md:right-0 md:left-auto md:bottom-auto md:top-0 md:h-full md:max-h-none md:w-[420px] md:rounded-none md:rounded-l-2xl
         flex flex-col
       "
       role="dialog"
