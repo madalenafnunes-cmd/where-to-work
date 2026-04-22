@@ -1,6 +1,13 @@
 import type { BBox, OsmPlace, OsmElementType } from "./types";
 
-const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
+// Public Overpass mirrors — we try them in order until one answers with 200.
+// The main overpass-api.de sometimes returns 406 from browser origins; the
+// Kumi Systems mirror is more permissive.
+const OVERPASS_ENDPOINTS = [
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
+];
 
 // Session-scoped cache: key is a rounded bbox string, value is the result.
 // Rounding to 3 decimals (~110m) so small pan jitter hits the cache.
@@ -61,15 +68,26 @@ export async function fetchVenuesInBBox(
     throw new Error("ZOOM_IN");
   }
 
-  const res = await fetch(OVERPASS_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: "data=" + encodeURIComponent(buildQuery(bbox)),
-    signal,
-  });
+  // GET is more widely accepted than POST across Overpass mirrors.
+  const querystring = "?data=" + encodeURIComponent(buildQuery(bbox));
+  let res: Response | null = null;
+  let lastErr: unknown = null;
+  for (const endpoint of OVERPASS_ENDPOINTS) {
+    try {
+      const r = await fetch(endpoint + querystring, { method: "GET", signal });
+      if (r.ok) {
+        res = r;
+        break;
+      }
+      lastErr = new Error(`Overpass HTTP ${r.status} from ${endpoint}`);
+    } catch (err) {
+      if ((err as Error).name === "AbortError") throw err;
+      lastErr = err;
+    }
+  }
 
-  if (!res.ok) {
-    throw new Error(`Overpass HTTP ${res.status}`);
+  if (!res) {
+    throw (lastErr as Error) ?? new Error("Overpass unreachable");
   }
 
   const data = (await res.json()) as { elements?: OverpassElement[] };
