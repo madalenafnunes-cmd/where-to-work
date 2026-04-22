@@ -50,10 +50,10 @@ export default function Home() {
           )}
         </button>
 
-        {/* Mobile: Hamburger menu (top-left) */}
+        {/* Mobile: Hamburger menu (bottom-left) */}
         <button
           onClick={() => setSidebarOpen(true)}
-          className="md:hidden absolute left-4 top-4 z-[500] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition"
+          className="md:hidden absolute left-4 bottom-4 z-[500] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition"
           style={{ color: "var(--ink)" }}
           aria-label="Open filters"
         >
