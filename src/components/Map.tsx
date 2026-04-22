@@ -37,10 +37,10 @@ function toBBox(b: ReturnType<ReturnType<typeof useMap>["getBounds"]>): BBox {
 }
 
 function pinColor(overall: number | null | undefined): string {
-  if (overall == null) return "#9ca3af"; // gray
-  if (overall >= 4) return "#10b981";    // green
-  if (overall >= 3) return "#f59e0b";    // amber
-  return "#ef4444";                       // red
+  if (overall == null) return "#9ca3af";
+  if (overall >= 4) return "#10b981";
+  if (overall >= 3) return "#f59e0b";
+  return "#ef4444";
 }
 
 type Status = "idle" | "loading" | "error" | "too-wide";
@@ -144,7 +144,8 @@ function RecenterButton({ target, onClick }: { target: { lat: number; lng: numbe
   return (
     <button
       onClick={onClick}
-      className="absolute bottom-6 right-4 z-[1000] flex h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-800 shadow-lg ring-1 ring-black/10 hover:bg-zinc-50"
+      className="absolute bottom-6 right-4 z-[1000] flex h-11 w-11 items-center justify-center rounded-full shadow-soft border transition-colors hover:bg-[var(--bg)]"
+      style={{ background: "white", color: "var(--ink)", borderColor: "var(--line)" }}
       aria-label="Recenter on my location"
     >
       <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -304,7 +305,7 @@ export default function Map() {
           );
         })}
 
-        {/* Custom (user-added) places — distinctive purple ring. */}
+        {/* Custom (user-added) places — distinctive periwinkle ring. */}
         {customPlaces.map((p) => {
           const overall = summaries[p.osmId]?.overall_rating ?? null;
           return (
@@ -313,7 +314,7 @@ export default function Map() {
               center={[p.lat, p.lng]}
               radius={9}
               pathOptions={{
-                color: "#7c3aed",
+                color: "#6c63ff",
                 weight: 3,
                 fillColor: pinColor(overall),
                 fillOpacity: 1,
@@ -332,7 +333,7 @@ export default function Map() {
           <CircleMarker
             center={[pendingLoc.lat, pendingLoc.lng]}
             radius={11}
-            pathOptions={{ color: "#7c3aed", weight: 3, fillColor: "#a78bfa", fillOpacity: 0.9 }}
+            pathOptions={{ color: "#6c63ff", weight: 3, fillColor: "#edebff", fillOpacity: 1 }}
           />
         )}
 
@@ -355,7 +356,8 @@ export default function Map() {
         {dirty && status !== "too-wide" && (
           <button
             onClick={() => setSearchToken((t) => t + 1)}
-            className="pointer-events-auto flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-lg ring-1 ring-black/10 hover:bg-zinc-50"
+            className="pointer-events-auto flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition-colors"
+            style={{ background: "white", color: "var(--ink)" }}
           >
             {status === "loading" ? (
               <>
@@ -369,7 +371,7 @@ export default function Map() {
         )}
 
         {status === "too-wide" && (
-          <div className="pointer-events-auto rounded-full bg-white px-4 py-2 text-sm text-zinc-700 shadow-lg ring-1 ring-black/10">
+          <div className="pointer-events-auto rounded-full px-4 py-2.5 text-sm font-medium shadow-soft border border-[var(--line)]" style={{ background: "white", color: "var(--ink)" }}>
             Zoom in to load cafes
           </div>
         )}
@@ -377,7 +379,7 @@ export default function Map() {
 
       {status === "error" && (
         <div className="pointer-events-none absolute inset-x-0 bottom-24 z-[1000] flex justify-center">
-          <div className="pointer-events-auto rounded-full bg-red-50 px-4 py-2 text-sm text-red-700 shadow ring-1 ring-red-200">
+          <div className="pointer-events-auto rounded-full px-4 py-2.5 text-sm font-medium shadow-soft" style={{ background: "rgba(255, 90, 95, 0.1)", color: "#ff5a5f" }}>
             Couldn&apos;t load cafes — try again in a moment
           </div>
         </div>
@@ -386,9 +388,9 @@ export default function Map() {
       {/* Empty state for no rated spots in view */}
       {status === "idle" && places.length === 0 && (
         <div className="pointer-events-none absolute inset-x-0 bottom-24 z-[1000] flex justify-center px-4">
-          <div className="pointer-events-auto max-w-sm rounded-xl bg-white/95 px-4 py-3 text-center text-sm text-zinc-600 shadow ring-1 ring-black/5">
+          <div className="pointer-events-auto max-w-sm rounded-2xl px-5 py-4 text-center text-sm shadow-soft" style={{ background: "var(--surface)", color: "var(--ink-muted)" }}>
             No cafes mapped here yet — zoom out, or help by adding one on{" "}
-            <a href="https://www.openstreetmap.org" className="underline" target="_blank" rel="noopener noreferrer">openstreetmap.org</a>.
+            <a href="https://www.openstreetmap.org" className="underline hover:no-underline transition" style={{ color: "var(--accent)" }} target="_blank" rel="noopener noreferrer">openstreetmap.org</a>.
           </div>
         </div>
       )}
@@ -400,7 +402,12 @@ export default function Map() {
         }}
         aria-label={placing ? "Cancel adding place" : "Add a place"}
         aria-pressed={placing}
-        className={`absolute bottom-20 right-4 z-[1000] flex h-11 w-11 items-center justify-center rounded-full shadow-lg ring-1 ring-black/10 ${placing ? "bg-violet-600 text-white hover:bg-violet-500" : "bg-white text-zinc-800 hover:bg-zinc-50"}`}
+        className="absolute bottom-20 right-4 z-[1000] flex h-11 w-11 items-center justify-center rounded-full shadow-soft transition-colors"
+        style={{
+          background: placing ? "var(--accent)" : "white",
+          color: placing ? "white" : "var(--ink)",
+          border: placing ? "none" : "1px solid var(--line)",
+        }}
       >
         {placing ? (
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -416,7 +423,7 @@ export default function Map() {
       {/* Placing-mode hint */}
       {placing && (
         <div className="pointer-events-none absolute inset-x-0 bottom-36 z-[1000] flex justify-center px-4">
-          <div className="pointer-events-auto rounded-full bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-lg">
+          <div className="pointer-events-auto rounded-full px-4 py-2.5 text-sm font-medium text-white shadow-soft" style={{ background: "var(--accent)" }}>
             Tap or long-press on the map to drop a pin
           </div>
         </div>
@@ -424,8 +431,15 @@ export default function Map() {
 
       {/* Tagline (top-left) */}
       <div
-        className="absolute left-4 top-4 z-[1000] rounded-full bg-white/90 px-4 py-2 text-sm italic text-zinc-800 shadow-lg ring-1 ring-black/10 backdrop-blur"
-        style={{ fontFamily: "var(--font-fraunces), ui-serif, Georgia, serif" }}
+        className="absolute left-4 top-4 z-[1000] rounded-full px-4 py-2.5 shadow-soft"
+        style={{
+          fontFamily: "var(--font-fraunces), ui-serif, Georgia, serif",
+          fontSize: "0.875rem",
+          fontStyle: "italic",
+          background: "rgba(255, 255, 255, 0.95)",
+          color: "var(--ink)",
+          backdropFilter: "blur(8px)",
+        }}
       >
         find where to work near you
       </div>
@@ -433,13 +447,14 @@ export default function Map() {
       {/* Favorites button (top-right) */}
       <button
         onClick={() => setFavPanelOpen(true)}
-        className="absolute right-4 top-4 z-[1000] flex h-11 items-center gap-2 rounded-full bg-white px-3 text-sm font-medium text-zinc-800 shadow-lg ring-1 ring-black/10 hover:bg-zinc-50"
+        className="absolute right-4 top-4 z-[1000] flex h-11 items-center gap-2 rounded-full bg-white px-3 text-sm font-medium shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition-colors"
+        style={{ color: "var(--ink)" }}
         aria-label="Open favorites"
       >
-        <svg viewBox="0 0 24 24" className={`h-5 w-5 ${favs.length > 0 ? "text-rose-500" : "text-zinc-500"}`} fill={favs.length > 0 ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+        <svg viewBox="0 0 24 24" className={`h-5 w-5 ${favs.length > 0 ? "text-[#ff5a5f]" : "text-[var(--ink-muted)]"}`} fill={favs.length > 0 ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
         </svg>
-        {favs.length > 0 && <span className="text-xs text-zinc-600">{favs.length}</span>}
+        {favs.length > 0 && <span className="text-xs" style={{ color: "var(--ink-muted)" }}>{favs.length}</span>}
       </button>
 
       {selectedPlace && (

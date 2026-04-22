@@ -126,10 +126,10 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
       role="dialog"
       aria-label={place.name}
     >
-      <div className="flex items-start justify-between gap-3 border-b border-zinc-100 px-5 pt-5 pb-4">
-        <div className="min-w-0">
-          <h2 className="truncate text-lg font-semibold text-zinc-900">{place.name}</h2>
-          <div className="mt-0.5 text-xs text-zinc-500">
+      <div className="flex items-start justify-between gap-3 border-b" style={{ borderColor: "var(--line)" }} >
+        <div className="flex-1 px-6 py-6">
+          <h2 className="truncate type-h2" style={{ color: "var(--ink)" }}>{place.name}</h2>
+          <div className="mt-2 type-meta">
             {[
               distance != null ? formatDistance(distance) : null,
               formatOpenStatus(openStatus),
@@ -137,12 +137,14 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
             ].filter(Boolean).join(" · ")}
           </div>
         </div>
-        <div className="flex items-center gap-1">
+
+        <div className="flex items-center gap-1 px-6">
           <button
             onClick={() => toggleFavorite({ osmId: place.osmId, name: place.name, lat: place.lat, lng: place.lng })}
             aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
             aria-pressed={isFav}
-            className={`-m-2 rounded-full p-2 transition ${isFav ? "text-rose-500 hover:bg-rose-50" : "text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"}`}
+            className="-m-2 rounded-full p-2 transition"
+            style={{ color: isFav ? "#ff5a5f" : "var(--ink-muted)" }}
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill={isFav ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -151,7 +153,8 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
           <button
             onClick={onClose}
             aria-label="Close"
-            className="-m-2 rounded-full p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+            className="-m-2 rounded-full p-2 transition"
+            style={{ color: "var(--ink-muted)" }}
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -160,7 +163,7 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-5 py-4">
+      <div className="flex-1 overflow-y-auto px-6 py-6">
         {mode === "view" ? (
           <ViewBody summary={summary} />
         ) : (
@@ -177,18 +180,20 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
       </div>
 
       {mode === "view" && (
-        <div className="flex gap-2 border-t border-zinc-100 bg-white px-5 py-3">
+        <div className="flex gap-3 border-t px-6 py-4" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
           <a
             href={directionsUrl(place)}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 rounded-full border border-zinc-200 px-4 py-3 text-center text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            className="flex-1 rounded-full border px-4 py-3 text-center text-sm font-medium transition hover:bg-[var(--bg)]"
+            style={{ borderColor: "var(--line)", color: "var(--ink)" }}
           >
             Directions
           </a>
           <button
             onClick={() => setMode("rate")}
-            className="flex-[2] rounded-full bg-zinc-900 px-4 py-3 text-sm font-medium text-white hover:bg-zinc-800"
+            className="flex-[2] rounded-full px-4 py-3 text-sm font-medium text-white hover:opacity-90 transition"
+            style={{ background: "var(--ink)" }}
           >
             Rate this place
           </button>
@@ -203,36 +208,41 @@ function ViewBody({ summary }: { summary: RatingSummary | null }) {
   const count = summary?.rating_count ?? 0;
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex items-center gap-4">
-        <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-xl text-2xl font-semibold text-white ${overallBadgeColor(overall)}`}>
-          {overall != null ? overall.toFixed(1) : "–"}
-        </div>
-        <div>
-          <div className="text-sm text-zinc-500">Overall</div>
-          <StarRating value={overall ?? 0} readOnly size={20} />
-          <div className="mt-0.5 text-xs text-zinc-500">
-            {count === 0 ? "No ratings yet" : `${count} rating${count === 1 ? "" : "s"}`}
+    <div className="flex flex-col gap-6">
+      <div>
+        <div className="type-label mb-3" style={{ color: "var(--ink-muted)" }}>OVERALL</div>
+        <div className="flex items-center gap-4">
+          <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-lg text-2xl font-800 text-white ${overallBadgeColor(overall)}`}>
+            {overall != null ? overall.toFixed(1) : "–"}
+          </div>
+          <div>
+            <StarRating value={overall ?? 0} readOnly size={20} />
+            <div className="mt-1.5 type-meta">
+              {count === 0 ? "No ratings yet" : `${count} rating${count === 1 ? "" : "s"}`}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
-        {CATS.map((c) => {
-          const val = (summary?.[c.key] as number | null) ?? null;
-          const cnt = (summary?.[c.countKey] as number | null) ?? 0;
-          return (
-            <div key={String(c.key)} className="flex items-center justify-between gap-3 rounded-lg border border-zinc-100 px-3 py-2">
-              <span className="text-sm text-zinc-700">{c.label}</span>
-              <div className="flex items-center gap-2">
-                <StarRating value={val ?? 0} readOnly size={16} />
-                <span className="w-16 text-right text-xs text-zinc-500">
-                  {val != null ? `${val.toFixed(1)} (${cnt})` : "— (0)"}
-                </span>
+      <div>
+        <div className="type-label mb-3" style={{ color: "var(--ink-muted)" }}>CATEGORIES</div>
+        <div className="flex flex-col gap-2">
+          {CATS.map((c) => {
+            const val = (summary?.[c.key] as number | null) ?? null;
+            const cnt = (summary?.[c.countKey] as number | null) ?? 0;
+            return (
+              <div key={String(c.key)} className="flex items-center justify-between gap-3 rounded-lg px-4 py-3" style={{ background: "var(--bg)", border: "1px solid var(--line)" }}>
+                <span className="text-sm" style={{ color: "var(--ink)" }}>{c.label}</span>
+                <div className="flex items-center gap-2">
+                  <StarRating value={val ?? 0} readOnly size={16} />
+                  <span className="w-16 text-right type-meta">
+                    {val != null ? `${val.toFixed(1)} (${cnt})` : "— (0)"}
+                  </span>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

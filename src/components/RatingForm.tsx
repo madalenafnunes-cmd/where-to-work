@@ -54,12 +54,12 @@ export default function RatingForm({ initial, submitting, onCancel, onSubmit }: 
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       {CATEGORIES.map((c) => (
-        <div key={c.key} className="flex flex-col gap-1.5">
+        <div key={c.key} className="flex flex-col gap-2">
           <div className="flex items-baseline justify-between">
-            <label className="text-sm font-medium text-zinc-800">{c.label}</label>
-            <span className="text-xs text-zinc-500">{c.hint}</span>
+            <label className="type-label" style={{ color: "var(--ink-muted)" }}>{c.label}</label>
+            <span className="type-meta">{c.hint}</span>
           </div>
           <div className="flex items-center gap-3">
             <StarRating
@@ -70,7 +70,8 @@ export default function RatingForm({ initial, submitting, onCancel, onSubmit }: 
               <button
                 type="button"
                 onClick={() => setValues((prev) => ({ ...prev, [c.key]: null }))}
-                className="text-xs text-zinc-400 hover:text-zinc-600"
+                className="text-xs transition"
+                style={{ color: "var(--ink-muted)" }}
               >
                 clear
               </button>
@@ -79,24 +80,26 @@ export default function RatingForm({ initial, submitting, onCancel, onSubmit }: 
         </div>
       ))}
 
-      <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-zinc-800">Anything else?</label>
+      <div className="flex flex-col gap-2">
+        <label className="type-label" style={{ color: "var(--ink-muted)" }}>ADDITIONAL NOTES</label>
         <input
           type="text"
           maxLength={140}
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Optional — 140 chars max"
-          className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 outline-none focus:border-zinc-400"
+          className="w-full rounded-lg px-3 py-2 text-sm outline-none focus-ring"
+          style={{ background: "var(--bg)", borderColor: "var(--line)", color: "var(--ink)" }}
         />
-        <div className="text-right text-[11px] text-zinc-400">{note.length}/140</div>
+        <div className="text-right type-meta">{note.length}/140</div>
       </div>
 
-      <div className="sticky bottom-0 flex gap-2 border-t border-zinc-100 bg-white pt-4">
+      <div className="sticky bottom-0 flex gap-3 border-t px-6 py-4" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 rounded-full border border-zinc-200 px-4 py-3 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+          className="flex-1 rounded-full border px-4 py-3 text-sm font-medium transition hover:bg-[var(--bg)]"
+          style={{ borderColor: "var(--line)", color: "var(--ink)" }}
         >
           Cancel
         </button>
@@ -104,7 +107,8 @@ export default function RatingForm({ initial, submitting, onCancel, onSubmit }: 
           type="button"
           disabled={!hasAny || submitting}
           onClick={submit}
-          className="flex-[2] rounded-full bg-zinc-900 px-4 py-3 text-sm font-medium text-white hover:bg-zinc-800 disabled:bg-zinc-300"
+          className="flex-[2] rounded-full px-4 py-3 text-sm font-medium text-white hover:opacity-90 transition disabled:opacity-50"
+          style={{ background: !hasAny || submitting ? "var(--ink-muted)" : "var(--ink)" }}
         >
           {submitting ? "Submitting…" : "Submit rating"}
         </button>
