@@ -30,7 +30,7 @@ export default function Home() {
 
       {/* Map area + toggle button */}
       <div className="flex-1 flex flex-col relative">
-        {/* Sidebar toggle (on the edge of sidebar, centered vertically) */}
+        {/* Desktop: Sidebar toggle (on the edge of sidebar, centered vertically) */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="hidden md:flex fixed top-1/2 z-[500] h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition -translate-y-1/2"
@@ -50,20 +50,44 @@ export default function Home() {
           )}
         </button>
 
+        {/* Mobile: Hamburger menu (top-left) */}
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="md:hidden absolute left-4 top-4 z-[500] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition"
+          style={{ color: "var(--ink)" }}
+          aria-label="Open filters"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+
         {/* Mobile sidebar drawer */}
         {sidebarOpen && (
           <div className="md:hidden fixed inset-0 z-[400] flex flex-col">
             {/* Overlay */}
             <div
-              className="flex-1 bg-black/20"
+              className="flex-1 bg-black/20 backdrop-blur-sm"
               onClick={() => setSidebarOpen(false)}
             />
             {/* Drawer */}
-            <div className="bg-[var(--surface)] max-h-[70vh] overflow-y-auto rounded-t-2xl">
-              <div className="px-6 py-2 flex justify-center">
+            <div className="bg-[var(--surface)] max-h-[75vh] overflow-y-auto rounded-t-2xl shadow-soft">
+              <div className="sticky top-0 px-6 py-2 flex justify-center border-b border-[var(--line)]">
                 <div className="h-1 w-12 rounded-full bg-[var(--line)]" />
               </div>
               <Sidebar />
+              {/* Close button for drawer */}
+              <div className="p-4 border-t border-[var(--line)]">
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  className="w-full rounded-full px-4 py-3 text-sm font-medium transition"
+                  style={{ background: "var(--accent)", color: "white" }}
+                >
+                  Done
+                </button>
+              </div>
             </div>
           </div>
         )}
