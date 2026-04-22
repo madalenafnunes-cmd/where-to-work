@@ -109,3 +109,4 @@ Overpass and Nominatim are community-run free services. This app:
 
 Accounts, photos, favorites, filters, personalized weighting, moderation, push,
 native apps, i18n. See the project brief for the rationale.
+# where-to-work
