@@ -422,10 +422,10 @@ export default function Map() {
         </div>
       )}
 
-      {/* Favorites button (top-left) */}
+      {/* Favorites button (top-right) */}
       <button
         onClick={() => setFavPanelOpen(true)}
-        className="absolute left-4 top-4 z-[1000] flex h-11 items-center gap-2 rounded-full bg-white px-3 text-sm font-medium text-zinc-800 shadow-lg ring-1 ring-black/10 hover:bg-zinc-50"
+        className="absolute right-4 top-4 z-[1000] flex h-11 items-center gap-2 rounded-full bg-white px-3 text-sm font-medium text-zinc-800 shadow-lg ring-1 ring-black/10 hover:bg-zinc-50"
         aria-label="Open favorites"
       >
         <svg viewBox="0 0 24 24" className={`h-5 w-5 ${favs.length > 0 ? "text-rose-500" : "text-zinc-500"}`} fill={favs.length > 0 ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
