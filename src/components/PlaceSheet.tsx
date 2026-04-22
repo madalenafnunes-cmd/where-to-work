@@ -119,10 +119,11 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
   return (
     <div
       className="
-        fixed inset-x-0 bottom-0 z-[1100] max-h-[85dvh] rounded-t-2xl bg-white shadow-2xl ring-1 ring-black/5
-        md:inset-y-0 md:left-0 md:right-auto md:bottom-auto md:top-0 md:h-full md:max-h-none md:w-[420px] md:rounded-none md:rounded-r-2xl
+        fixed inset-x-0 bottom-0 z-[1100] max-h-[85dvh] rounded-t-2xl shadow-soft
+        md:absolute md:right-4 md:bottom-4 md:top-auto md:left-auto md:h-auto md:max-h-[70vh] md:w-[420px] md:rounded-2xl
         flex flex-col
       "
+      style={{ background: "var(--surface)" }}
       role="dialog"
       aria-label={place.name}
     >
