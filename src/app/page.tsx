@@ -54,10 +54,6 @@ export default function Home() {
         {/* Mobile: Hamburger menu (bottom-left) */}
         <button
           onClick={() => setDrawerOpen(true)}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            setDrawerOpen(true);
-          }}
           className="md:hidden fixed left-4 z-[500] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition pointer-events-auto"
           style={{ color: "var(--ink)", bottom: "max(1rem, env(safe-area-inset-bottom))" }}
           aria-label="Open filters"
