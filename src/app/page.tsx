@@ -68,10 +68,10 @@ export default function Home() {
 
         {/* Mobile sidebar drawer */}
         {drawerOpen && (
-          <div className="md:hidden fixed inset-0 z-[400] flex flex-col">
+          <div className="md:hidden fixed inset-0 z-[400] flex flex-col drawer-enter">
             {/* Overlay */}
             <div
-              className="flex-1 bg-black/20 backdrop-blur-sm"
+              className="flex-1 bg-black/20 backdrop-blur-sm overlay-enter"
               onClick={() => setDrawerOpen(false)}
             />
             {/* Drawer */}
