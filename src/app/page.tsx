@@ -30,7 +30,7 @@ export default function Home() {
       </div>
 
       {/* Map area + toggle button */}
-      <div className="flex-1 flex flex-col relative">
+      <div className="flex-1 flex flex-col relative" style={{ touchAction: "auto" }}>
         {/* Desktop: Sidebar toggle (on the edge of sidebar, centered vertically) */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
