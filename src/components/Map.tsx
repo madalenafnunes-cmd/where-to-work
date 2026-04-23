@@ -248,7 +248,7 @@ export default function Map() {
   }
 
   return (
-    <div className="relative h-full w-full" style={{ touchAction: "manipulation" }}>
+    <div className="relative h-full w-full" style={{ touchAction: "none" }}>
       <MapContainer bounds={initialBounds} scrollWheelZoom touchZoom={true} className="h-full w-full">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

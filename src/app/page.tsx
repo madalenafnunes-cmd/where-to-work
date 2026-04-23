@@ -30,7 +30,7 @@ export default function Home() {
       </div>
 
       {/* Map area + toggle button */}
-      <div className="flex-1 flex flex-col relative" style={{ touchAction: "auto" }}>
+      <div className="flex-1 flex flex-col relative">
         {/* Desktop: Sidebar toggle (on the edge of sidebar, centered vertically) */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -54,7 +54,7 @@ export default function Home() {
         {/* Mobile: Hamburger menu (bottom-left) */}
         <button
           onClick={() => setDrawerOpen(true)}
-          onTouchStart={(e) => {
+          onTouchEnd={(e) => {
             e.preventDefault();
             setDrawerOpen(true);
           }}
