@@ -55,20 +55,22 @@ export default function Home() {
         <Map />
       </div>
 
-      {/* Mobile: Hamburger menu button (outside map container to avoid z-index/event capture issues) */}
-      <button
-        onClick={() => setDrawerOpen(true)}
-        className="md:hidden fixed left-4 z-[9999] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition pointer-events-auto"
-        style={{ color: "var(--ink)", bottom: "max(4rem, calc(env(safe-area-inset-bottom) + 1.5rem))" }}
-        aria-label="Open filters"
-        type="button"
-      >
-        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <line x1="3" y1="12" x2="21" y2="12" />
-          <line x1="3" y1="18" x2="21" y2="18" />
-        </svg>
-      </button>
+      {/* Mobile: Hamburger menu button (hidden when drawer is open) */}
+      {!drawerOpen && (
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="md:hidden fixed left-4 z-[9999] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition pointer-events-auto"
+          style={{ color: "var(--ink)", bottom: "max(4rem, calc(env(safe-area-inset-bottom) + 1.5rem))" }}
+          aria-label="Open filters"
+          type="button"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+      )}
 
       {/* Mobile sidebar drawer (outside map container) */}
       {drawerOpen && (
