@@ -22,8 +22,6 @@ export default function LandingPage() {
     }
   };
 
-  const isGeoPending = geoState.status === "pending";
-
   return (
     <main className="min-h-dvh w-dvw flex items-center justify-center bg-[var(--bg)] overflow-hidden relative">
       {/* Animated dots background */}
