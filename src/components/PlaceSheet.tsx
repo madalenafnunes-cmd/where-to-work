@@ -96,8 +96,9 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
         .select("id")
         .single();
       if (placeErr || !placeRow) {
-        console.error("Place upsert error:", placeErr);
-        throw placeErr ?? new Error("place upsert failed");
+        const errorMsg = placeErr?.message || placeErr?.error_description || JSON.stringify(placeErr) || "unknown error";
+        console.error("Place upsert error:", placeErr, "Details:", errorMsg);
+        throw new Error(`Failed to save place: ${errorMsg}`);
       }
 
       const { error: ratingErr } = await sb.from("ratings").upsert(
@@ -109,15 +110,17 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
         { onConflict: "place_id,contributor_id" },
       );
       if (ratingErr) {
-        console.error("Rating upsert error:", ratingErr);
-        throw ratingErr;
+        const errorMsg = ratingErr?.message || ratingErr?.error_description || JSON.stringify(ratingErr) || "unknown error";
+        console.error("Rating upsert error:", ratingErr, "Details:", errorMsg);
+        throw new Error(`Failed to save rating: ${errorMsg}`);
       }
 
       onRatingSaved();
       setMode("view");
     } catch (e) {
+      const errorMessage = (e as Error).message || "Couldn't save rating";
       console.error("Rating submission error:", e);
-      setErrorMsg((e as Error).message || "Couldn't save rating");
+      setErrorMsg(errorMessage);
     } finally {
       setSubmitting(false);
     }
