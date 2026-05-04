@@ -1,24 +1,17 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useGeolocation } from "@/hooks/useGeolocation";
 
 export default function LandingPage() {
   const router = useRouter();
   const [searchInput, setSearchInput] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const { requestLocation, loading: geoLoading } = useGeolocation();
+  const geoState = useGeolocation();
 
-  const handleFindNearMe = async () => {
-    setIsSearching(true);
-    try {
-      const location = await requestLocation();
-      if (location) {
-        router.push(`/explore?lat=${location.latitude}&lng=${location.longitude}`);
-      }
-    } finally {
-      setIsSearching(false);
+  const handleFindNearMe = () => {
+    if (geoState.status === "granted") {
+      router.push(`/explore?lat=${geoState.lat}&lng=${geoState.lng}`);
     }
   };
 
@@ -28,6 +21,8 @@ export default function LandingPage() {
       router.push(`/explore?q=${encodeURIComponent(searchInput)}`);
     }
   };
+
+  const isGeoPending = geoState.status === "pending";
 
   return (
     <main className="min-h-dvh w-dvw flex items-center justify-center bg-[var(--bg)] overflow-hidden relative">
@@ -81,15 +76,15 @@ export default function LandingPage() {
           {/* Find near me button */}
           <button
             onClick={handleFindNearMe}
-            disabled={geoLoading || isSearching}
+            disabled={geoState.status === "pending"}
             className="w-full py-3 px-4 rounded-full font-medium transition flex items-center justify-center gap-2"
             style={{
               background: "var(--accent)",
               color: "white",
-              opacity: geoLoading || isSearching ? 0.7 : 1,
+              opacity: geoState.status === "pending" ? 0.7 : 1,
             }}
           >
-            {geoLoading ? (
+            {geoState.status === "pending" ? (
               <>
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 Finding location…
