@@ -96,7 +96,7 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
         .select("id")
         .single();
       if (placeErr || !placeRow) {
-        const errorMsg = placeErr?.message || placeErr?.error_description || JSON.stringify(placeErr) || "unknown error";
+        const errorMsg = placeErr?.message || JSON.stringify(placeErr) || "unknown error";
         console.error("Place upsert error:", placeErr, "Details:", errorMsg);
         throw new Error(`Failed to save place: ${errorMsg}`);
       }
@@ -110,7 +110,7 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
         { onConflict: "place_id,contributor_id" },
       );
       if (ratingErr) {
-        const errorMsg = ratingErr?.message || ratingErr?.error_description || JSON.stringify(ratingErr) || "unknown error";
+        const errorMsg = ratingErr?.message || JSON.stringify(ratingErr) || "unknown error";
         console.error("Rating upsert error:", ratingErr, "Details:", errorMsg);
         throw new Error(`Failed to save rating: ${errorMsg}`);
       }
