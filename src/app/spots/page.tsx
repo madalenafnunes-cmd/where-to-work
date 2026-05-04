@@ -1,8 +1,6 @@
-export const dynamic = "force-dynamic";
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import TopNav from "@/components/TopNav";
@@ -12,7 +10,7 @@ import { getSupabase, type RatingSummary } from "@/lib/supabase";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import type { OsmPlace } from "@/lib/types";
 
-export default function SpotsPage() {
+function SpotsPageContent() {
   const searchParams = useSearchParams();
   const location = searchParams.get("near") || "";
   const geo = useGeolocation();
@@ -188,5 +186,19 @@ export default function SpotsPage() {
         />
       )}
     </main>
+  );
+}
+
+export default function SpotsPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-dvh bg-[var(--bg)] flex items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--line)] border-t-[var(--accent)]" />
+        </main>
+      }
+    >
+      <SpotsPageContent />
+    </Suspense>
   );
 }
