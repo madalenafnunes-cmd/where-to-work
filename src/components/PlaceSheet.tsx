@@ -95,7 +95,10 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
         )
         .select("id")
         .single();
-      if (placeErr || !placeRow) throw placeErr ?? new Error("place upsert failed");
+      if (placeErr || !placeRow) {
+        console.error("Place upsert error:", placeErr);
+        throw placeErr ?? new Error("place upsert failed");
+      }
 
       const { error: ratingErr } = await sb.from("ratings").upsert(
         {
@@ -105,11 +108,15 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
         },
         { onConflict: "place_id,contributor_id" },
       );
-      if (ratingErr) throw ratingErr;
+      if (ratingErr) {
+        console.error("Rating upsert error:", ratingErr);
+        throw ratingErr;
+      }
 
       onRatingSaved();
       setMode("view");
     } catch (e) {
+      console.error("Rating submission error:", e);
       setErrorMsg((e as Error).message || "Couldn't save rating");
     } finally {
       setSubmitting(false);
