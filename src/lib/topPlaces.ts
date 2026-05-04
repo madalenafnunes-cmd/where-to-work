@@ -28,16 +28,23 @@ export async function fetchTopPlaces(
     east: centerLng + radiusDeg,
   };
 
-  if (bboxAreaDeg2(bbox) > MAX_QUERY_AREA_DEG2) {
-    // If bbox is too large, shrink it
-    const shrinkFactor = Math.sqrt(MAX_QUERY_AREA_DEG2 / bboxAreaDeg2(bbox));
-    const newRadius = radiusDeg * shrinkFactor;
-    return fetchTopPlaces(locationString, limit);
+  // Use a smaller search radius if needed
+  let searchBbox = bbox;
+  const area = bboxAreaDeg2(bbox);
+  if (area > MAX_QUERY_AREA_DEG2) {
+    const shrinkFactor = Math.sqrt(MAX_QUERY_AREA_DEG2 / area);
+    const smallerRadius = radiusDeg * shrinkFactor;
+    searchBbox = {
+      south: centerLat - smallerRadius,
+      west: centerLng - smallerRadius,
+      north: centerLat + smallerRadius,
+      east: centerLng + smallerRadius,
+    };
   }
 
   try {
     // Fetch venues from Overpass
-    const places = await fetchVenuesInBBox(bbox);
+    const places = await fetchVenuesInBBox(searchBbox);
 
     // Fetch rating summaries for all places
     const sb = getSupabase();
