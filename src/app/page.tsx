@@ -51,11 +51,11 @@ export default function Home() {
           )}
         </button>
 
-        {/* Mobile: Hamburger menu (bottom-left) */}
+        {/* Mobile: Hamburger menu (bottom-left, positioned above gesture area) */}
         <button
           onClick={() => setDrawerOpen(true)}
           className="md:hidden fixed left-4 z-[500] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition pointer-events-auto"
-          style={{ color: "var(--ink)", bottom: "max(1rem, env(safe-area-inset-bottom))" }}
+          style={{ color: "var(--ink)", bottom: "max(4rem, calc(env(safe-area-inset-bottom) + 1.5rem))" }}
           aria-label="Open filters"
           type="button"
         >
