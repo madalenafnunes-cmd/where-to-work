@@ -2,7 +2,10 @@ import Link from "next/link";
 
 export default function TopNav() {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[1000] flex items-center justify-between h-16 bg-[var(--surface)] border-b border-[var(--line)] px-6 shadow-soft">
+    <nav
+      className="fixed top-0 left-0 right-0 z-[1000] flex items-center justify-between h-16 bg-[var(--surface)] border-b border-[var(--line)] px-6 shadow-soft"
+      style={{ "--header-height": "4rem" } as React.CSSProperties}
+    >
       {/* Left: Logo / Home link */}
       <Link href="/" className="flex items-center gap-2 font-semibold text-lg hover:opacity-80 transition" style={{ color: "var(--ink)" }}>
         {/* Simple map pin icon */}

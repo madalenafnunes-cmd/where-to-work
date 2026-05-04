@@ -20,21 +20,31 @@ export default function ExplorePage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <main className="h-dvh w-dvw flex flex-col md:flex-row bg-[var(--bg)]">
+    <main className="h-dvh w-dvw flex flex-col bg-[var(--bg)]" style={{ "--header-height": "4rem" } as React.CSSProperties}>
       {/* Top Navigation */}
       <TopNav />
 
-      {/* Sidebar: hidden on mobile, visible on desktop, collapsible */}
-      <div
-        className={`hidden md:flex flex-col transition-all duration-300 ease-in-out overflow-hidden ${
-          sidebarOpen ? "md:w-[380px]" : "md:w-0"
-        }`}
-      >
-        <Sidebar />
-      </div>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar: hidden on mobile, visible on desktop, collapsible */}
+        <div
+          className={`hidden md:flex flex-col transition-all duration-300 ease-in-out overflow-hidden ${
+            sidebarOpen ? "md:w-[380px]" : "md:w-0"
+          }`}
+          style={{
+            height: "calc(100vh - var(--header-height))",
+            marginTop: "var(--header-height)",
+          } as React.CSSProperties}
+        >
+          <Sidebar />
+        </div>
 
-      {/* Map area */}
-      <div className="flex-1 flex flex-col pt-16 md:pt-0">
+        {/* Map area */}
+        <div
+          className="flex-1 flex flex-col md:pt-0 relative"
+          style={{
+            marginTop: "var(--header-height)",
+          } as React.CSSProperties}
+        >
         {/* Desktop: Sidebar toggle (on the edge of sidebar, centered vertically) */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -57,6 +67,7 @@ export default function ExplorePage() {
 
         {/* Map */}
         <Map />
+        </div>
       </div>
 
       {/* Mobile: Hamburger menu button (hidden when drawer is open) */}

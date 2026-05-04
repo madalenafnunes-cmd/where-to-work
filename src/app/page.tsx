@@ -3,43 +3,24 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { reverseGeocode } from "@/lib/nominatim";
+import SearchBox from "@/components/SearchBox";
 
 export default function LandingPage() {
   const router = useRouter();
-  const [searchInput, setSearchInput] = useState("");
   const [geoLoading, setGeoLoading] = useState(false);
   const geoState = useGeolocation();
 
-  const handleFindNearMe = async () => {
+  const handleFindNearMe = () => {
     if (geoState.status === "granted") {
-      setGeoLoading(true);
+      setGeoLoading(false);
       const lat: number = geoState.lat;
       const lng: number = geoState.lng;
-      try {
-        // Convert coordinates to location name
-        const locationName = await reverseGeocode(lat, lng);
-        if (locationName) {
-          router.push(`/spots?near=${encodeURIComponent(locationName)}`);
-        } else {
-          // Fallback: use coordinates if reverse geocoding fails
-          router.push(`/spots?near=${lat},${lng}`);
-        }
-      } catch (error) {
-        console.error("Reverse geocoding failed:", error);
-        // Fallback: use coordinates
-        router.push(`/spots?near=${lat},${lng}`);
-      } finally {
-        setGeoLoading(false);
-      }
+      router.push(`/spots?mode=near-me&lat=${lat}&lng=${lng}`);
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchInput.trim()) {
-      router.push(`/spots?near=${encodeURIComponent(searchInput)}`);
-    }
+  const handleSearchPick = (lat: number, lng: number, label: string) => {
+    router.push(`/spots?q=${encodeURIComponent(label)}&lat=${lat}&lng=${lng}`);
   };
 
   return (
@@ -94,15 +75,15 @@ export default function LandingPage() {
           {/* Find near me button */}
           <button
             onClick={handleFindNearMe}
-            disabled={geoState.status === "pending" || geoLoading}
+            disabled={geoState.status === "pending"}
             className="w-full py-3 px-4 rounded-full font-medium transition flex items-center justify-center gap-2"
             style={{
               background: "var(--accent)",
               color: "white",
-              opacity: geoState.status === "pending" || geoLoading ? 0.7 : 1,
+              opacity: geoState.status === "pending" ? 0.7 : 1,
             }}
           >
-            {geoState.status === "pending" || geoLoading ? (
+            {geoState.status === "pending" ? (
               <>
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 Finding location…
@@ -127,35 +108,8 @@ export default function LandingPage() {
             <div className="flex-1 h-px" style={{ background: "var(--line)" }} />
           </div>
 
-          {/* Search form */}
-          <form onSubmit={handleSearch} className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Search location…"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="flex-1 px-4 py-3 rounded-full border"
-              style={{
-                borderColor: "var(--line)",
-                background: "var(--surface)",
-                color: "var(--ink)",
-              }}
-            />
-            <button
-              type="submit"
-              disabled={!searchInput.trim()}
-              className="px-6 py-3 rounded-full font-medium transition flex items-center gap-2"
-              style={{
-                background: searchInput.trim() ? "var(--accent)" : "var(--line)",
-                color: searchInput.trim() ? "white" : "var(--ink-muted)",
-              }}
-            >
-              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
-              </svg>
-            </button>
-          </form>
+          {/* Search box with autocomplete */}
+          <SearchBox onPick={handleSearchPick} />
         </div>
       </div>
 

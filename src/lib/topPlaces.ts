@@ -1,13 +1,16 @@
 import { searchPlace } from "./nominatim";
 import { fetchVenuesInBBox, MAX_QUERY_AREA_DEG2, bboxAreaDeg2 } from "./overpass";
 import { getSupabase, type RatingSummary } from "./supabase";
+import { haversineDistance } from "./distance";
 import type { OsmPlace, BBox } from "./types";
 
-export type PlaceWithRating = OsmPlace & Partial<RatingSummary>;
+export type PlaceWithRating = OsmPlace & Partial<RatingSummary> & { distance?: number };
 
 export async function fetchTopPlaces(
   locationString: string,
   limit: number = 10,
+  userLat?: number,
+  userLng?: number,
 ): Promise<PlaceWithRating[]> {
   // Convert location string to coordinates
   const results = await searchPlace(locationString, new AbortController().signal);
@@ -63,19 +66,46 @@ export async function fetchTopPlaces(
       (summaries as RatingSummary[])?.map((s) => [s.osm_id, s]) ?? [],
     );
 
-    const merged: PlaceWithRating[] = places.map((place) => ({
-      ...place,
-      ...summaryMap.get(place.osmId),
-    }));
+    const merged: PlaceWithRating[] = places.map((place) => {
+      const summary = summaryMap.get(place.osmId);
+      const distance =
+        userLat != null &&
+        userLng != null &&
+        summary?.lat != null &&
+        summary?.lng != null
+          ? haversineDistance(userLat, userLng, summary.lat, summary.lng)
+          : undefined;
 
-    // Sort by overall_rating (highest first), then by name
-    merged.sort((a, b) => {
-      const ratingDiff = (b.overall_rating ?? 0) - (a.overall_rating ?? 0);
-      if (ratingDiff !== 0) return ratingDiff;
-      return a.name.localeCompare(b.name);
+      return {
+        ...place,
+        ...summary,
+        distance,
+      } as PlaceWithRating;
     });
 
-    return merged.slice(0, limit);
+    // Filter to 2km radius if user location provided
+    let filtered = merged;
+    if (userLat != null && userLng != null) {
+      filtered = merged.filter((place) => {
+        if (place.distance == null) return true; // Include if distance can't be calculated
+        return place.distance <= 2; // 2km radius
+      });
+    }
+
+    // Sort by overall_rating (highest first), then by rating_count (highest first), then by distance (lowest first)
+    filtered.sort((a, b) => {
+      const ratingDiff = (b.overall_rating ?? 0) - (a.overall_rating ?? 0);
+      if (ratingDiff !== 0) return ratingDiff;
+
+      const countDiff = (b.rating_count ?? 0) - (a.rating_count ?? 0);
+      if (countDiff !== 0) return countDiff;
+
+      const distA = a.distance ?? Infinity;
+      const distB = b.distance ?? Infinity;
+      return distA - distB;
+    });
+
+    return filtered.slice(0, limit);
   } catch (err) {
     console.error("Error fetching top places:", err);
     return [];
