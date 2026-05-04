@@ -1,104 +1,183 @@
 "use client";
 
-import { useState } from "react";
-import dynamic from "next/dynamic";
-import Sidebar from "@/components/Sidebar";
+import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
-// Leaflet touches `window` on import, so load the map client-side only.
-const Map = dynamic(() => import("@/components/Map"), {
-  ssr: false,
-  loading: () => (
-    <div className="flex h-full w-full items-center justify-center bg-[var(--bg)] text-[var(--ink-muted)]">
-      Loading map…
-    </div>
-  ),
-});
+export default function LandingPage() {
+  const router = useRouter();
+  const [searchInput, setSearchInput] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const { requestLocation, loading: geoLoading } = useGeolocation();
 
-export default function Home() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const handleFindNearMe = async () => {
+    setIsSearching(true);
+    try {
+      const location = await requestLocation();
+      if (location) {
+        router.push(`/explore?lat=${location.latitude}&lng=${location.longitude}`);
+      }
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchInput.trim()) {
+      router.push(`/explore?q=${encodeURIComponent(searchInput)}`);
+    }
+  };
 
   return (
-    <main className="h-dvh w-dvw flex flex-col md:flex-row bg-[var(--bg)]">
-      {/* Sidebar: hidden on mobile, visible on desktop, collapsible */}
-      <div
-        className={`hidden md:flex flex-col transition-all duration-300 ease-in-out overflow-hidden ${
-          sidebarOpen ? "md:w-[380px]" : "md:w-0"
-        }`}
-      >
-        <Sidebar />
-      </div>
-
-      {/* Map area */}
-      <div className="flex-1 flex flex-col">
-        {/* Desktop: Sidebar toggle (on the edge of sidebar, centered vertically) */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="hidden md:flex fixed top-1/2 z-[500] h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition -translate-y-1/2"
-          style={{ left: sidebarOpen ? "calc(380px - 22px)" : "calc(-22px)", color: "var(--ink)" }}
-          aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-        >
-          {sidebarOpen ? (
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="15" y1="19" x2="15" y2="5" />
-              <polyline points="8 12 15 5 15 19" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="9" y1="19" x2="9" y2="5" />
-              <polyline points="16 12 9 5 9 19" />
-            </svg>
-          )}
-        </button>
-
-        {/* Map */}
-        <Map />
-      </div>
-
-      {/* Mobile: Hamburger menu button (hidden when drawer is open) */}
-      {!drawerOpen && (
-        <button
-          onClick={() => setDrawerOpen(true)}
-          className="md:hidden fixed left-4 z-[9999] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition pointer-events-auto"
-          style={{ color: "var(--ink)", bottom: "max(4rem, calc(env(safe-area-inset-bottom) + 1.5rem))" }}
-          aria-label="Open filters"
-          type="button"
-        >
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-        </button>
-      )}
-
-      {/* Mobile sidebar drawer (outside map container) */}
-      {drawerOpen && (
-        <div className="md:hidden fixed inset-0 z-[9998] flex flex-col drawer-enter">
-          {/* Overlay */}
+    <main className="min-h-dvh w-dvw flex items-center justify-center bg-[var(--bg)] overflow-hidden relative">
+      {/* Animated dots background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(6)].map((_, i) => (
           <div
-            className="flex-1 bg-black/20 backdrop-blur-sm overlay-enter"
-            onClick={() => setDrawerOpen(false)}
+            key={i}
+            className="absolute w-2 h-2 rounded-full"
+            style={{
+              background: "var(--accent)",
+              opacity: 0.1,
+              animation: `float-dots ${3 + i * 0.5}s ease-in-out infinite`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${i * 0.3}s`,
+            }}
           />
-          {/* Drawer */}
-          <div className="bg-[var(--surface)] max-h-[75vh] overflow-y-auto rounded-t-2xl shadow-soft">
-            <div className="sticky top-0 px-6 py-2 flex justify-center border-b border-[var(--line)]">
-              <div className="h-1 w-12 rounded-full bg-[var(--line)]" />
-            </div>
-            <Sidebar />
-            {/* Close button for drawer */}
-            <div className="p-4 border-t border-[var(--line)]">
-              <button
-                onClick={() => setDrawerOpen(false)}
-                className="w-full rounded-full px-4 py-3 text-sm font-medium transition"
-                style={{ background: "var(--accent)", color: "white" }}
-              >
-                Done
-              </button>
-            </div>
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 w-full px-6 max-w-lg">
+        {/* Logo + Title */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-6">
+            <svg viewBox="0 0 24 24" className="w-12 h-12" fill="var(--accent)" stroke="none">
+              <path d="M12 2C6.48 2 2 6.48 2 12c0 7 10 13 10 13s10-6 10-13c0-5.52-4.48-10-10-10zm0 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
+            </svg>
           </div>
+          <h1 className="type-h2 mb-6" style={{ color: "var(--ink)" }}>
+            Where to Work
+          </h1>
         </div>
-      )}
+
+        {/* Headline */}
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-6" style={{ color: "var(--ink)" }}>
+          Skip the bad wifi.
+          <br />
+          Find spots people<br />
+          actually love.
+        </h2>
+
+        {/* Subheadline */}
+        <p className="text-center type-body mb-10" style={{ color: "var(--ink-muted)" }}>
+          See what places people are best rated for working — or rate a place yourself.
+        </p>
+
+        {/* Buttons */}
+        <div className="space-y-4">
+          {/* Find near me button */}
+          <button
+            onClick={handleFindNearMe}
+            disabled={geoLoading || isSearching}
+            className="w-full py-3 px-4 rounded-full font-medium transition flex items-center justify-center gap-2"
+            style={{
+              background: "var(--accent)",
+              color: "white",
+              opacity: geoLoading || isSearching ? 0.7 : 1,
+            }}
+          >
+            {geoLoading ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Finding location…
+              </>
+            ) : (
+              <>
+                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                Find near me
+              </>
+            )}
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px" style={{ background: "var(--line)" }} />
+            <span className="text-sm" style={{ color: "var(--ink-muted)" }}>
+              or search
+            </span>
+            <div className="flex-1 h-px" style={{ background: "var(--line)" }} />
+          </div>
+
+          {/* Search form */}
+          <form onSubmit={handleSearch} className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Search location…"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="flex-1 px-4 py-3 rounded-full border"
+              style={{
+                borderColor: "var(--line)",
+                background: "var(--surface)",
+                color: "var(--ink)",
+              }}
+            />
+            <button
+              type="submit"
+              disabled={!searchInput.trim() || isSearching}
+              className="px-6 py-3 rounded-full font-medium transition flex items-center gap-2"
+              style={{
+                background: searchInput.trim() ? "var(--accent)" : "var(--line)",
+                color: searchInput.trim() ? "white" : "var(--ink-muted)",
+              }}
+            >
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+            </button>
+          </form>
+
+          {/* Discover button */}
+          <button
+            onClick={() => router.push("/explore")}
+            className="w-full py-3 px-4 rounded-full font-medium transition border"
+            style={{
+              borderColor: "var(--accent)",
+              color: "var(--accent)",
+              background: "transparent",
+            }}
+          >
+            Discover Now
+          </button>
+        </div>
+      </div>
+
+      {/* CSS for floating dots animation */}
+      <style jsx>{`
+        @keyframes float-dots {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px);
+            opacity: 0.1;
+          }
+          25% {
+            opacity: 0.2;
+          }
+          50% {
+            transform: translateY(-20px) translateX(10px);
+            opacity: 0.15;
+          }
+          75% {
+            opacity: 0.1;
+          }
+        }
+      `}</style>
     </main>
   );
 }
