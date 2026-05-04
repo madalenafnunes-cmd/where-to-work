@@ -78,9 +78,18 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
     }
 
     try {
+      // Debug: Log what we're trying to save
+      const contributorId = getContributorId();
+      console.log("Submitting rating:", {
+        place: { osmId: place.osmId, name: place.name },
+        contributorId,
+        rating: r,
+      });
+
       // Ensure the place exists. The seed covers Lisbon demo rows, but any
       // new venue has to be inserted on first rating. Upsert by osm_id is safe
       // thanks to the unique constraint.
+      console.log("Attempting to upsert place...");
       const { data: placeRow, error: placeErr } = await sb
         .from("places")
         .upsert(
@@ -95,31 +104,41 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
         )
         .select("id")
         .single();
-      if (placeErr || !placeRow) {
-        const errorMsg = placeErr?.message || JSON.stringify(placeErr) || "unknown error";
-        console.error("Place upsert error:", placeErr, "Details:", errorMsg);
-        throw new Error(`Failed to save place: ${errorMsg}`);
+
+      if (placeErr) {
+        console.error("Place upsert error:", placeErr);
+        throw new Error(`Failed to save place: ${placeErr.message || JSON.stringify(placeErr)}`);
       }
+      if (!placeRow) {
+        console.error("Place upsert returned no data");
+        throw new Error("Failed to save place: No data returned");
+      }
+
+      console.log("Place upserted successfully, id:", placeRow.id);
+      console.log("Attempting to upsert rating...");
 
       const { error: ratingErr } = await sb.from("ratings").upsert(
         {
           place_id: placeRow.id,
-          contributor_id: getContributorId(),
+          contributor_id: contributorId,
           ...r,
         },
         { onConflict: "place_id,contributor_id" },
       );
+
       if (ratingErr) {
-        const errorMsg = ratingErr?.message || JSON.stringify(ratingErr) || "unknown error";
-        console.error("Rating upsert error:", ratingErr, "Details:", errorMsg);
-        throw new Error(`Failed to save rating: ${errorMsg}`);
+        console.error("Rating upsert error:", ratingErr);
+        throw new Error(`Failed to save rating: ${ratingErr.message || JSON.stringify(ratingErr)}`);
       }
 
+      console.log("Rating submitted successfully!");
       onRatingSaved();
       setMode("view");
     } catch (e) {
       const errorMessage = (e as Error).message || "Couldn't save rating";
-      console.error("Rating submission error:", e);
+      console.error("Rating submission error (full stack):", e);
+      console.error("Error message:", errorMessage);
+      console.error("Error type:", typeof e, e instanceof Error ? "Error instance" : "not Error");
       setErrorMsg(errorMessage);
     } finally {
       setSubmitting(false);
