@@ -14,7 +14,8 @@ export default function LandingPage() {
   const handleFindNearMe = async () => {
     if (geoState.status === "granted") {
       setGeoLoading(true);
-      const { lat, lng } = geoState;
+      const lat: number = geoState.lat;
+      const lng: number = geoState.lng;
       try {
         // Convert coordinates to location name
         const locationName = await reverseGeocode(lat, lng);
