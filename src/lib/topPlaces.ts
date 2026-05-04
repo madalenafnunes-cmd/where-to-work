@@ -88,25 +88,25 @@ export function generateCategoryTags(place: PlaceWithRating): string[] {
 
   const highRatingThreshold = 3.5;
 
-  if (place.avg_laptop_friendly !== null && place.avg_laptop_friendly >= highRatingThreshold) {
+  if (place.avg_laptop_friendly != null && place.avg_laptop_friendly >= highRatingThreshold) {
     tags.push("Laptop friendly");
   }
-  if (place.avg_noise !== null && place.avg_noise >= highRatingThreshold) {
+  if (place.avg_noise != null && place.avg_noise >= highRatingThreshold) {
     tags.push("Quiet");
   }
-  if (place.avg_wifi !== null && place.avg_wifi >= highRatingThreshold) {
+  if (place.avg_wifi != null && place.avg_wifi >= highRatingThreshold) {
     tags.push("Good wifi");
   }
-  if (place.avg_plugs !== null && place.avg_plugs >= highRatingThreshold) {
+  if (place.avg_plugs != null && place.avg_plugs >= highRatingThreshold) {
     tags.push("Lots of plugs");
   }
-  if (place.avg_food !== null && place.avg_food >= highRatingThreshold) {
+  if (place.avg_food != null && place.avg_food >= highRatingThreshold) {
     tags.push("Good food");
   }
-  if (place.avg_coffee !== null && place.avg_coffee >= highRatingThreshold) {
+  if (place.avg_coffee != null && place.avg_coffee >= highRatingThreshold) {
     tags.push("Great coffee");
   }
-  if (place.avg_price !== null && place.avg_price >= highRatingThreshold) {
+  if (place.avg_price != null && place.avg_price >= highRatingThreshold) {
     tags.push("Good value");
   }
 

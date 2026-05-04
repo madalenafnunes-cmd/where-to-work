@@ -120,7 +120,7 @@ export default function SpotsPage() {
                     <h3 className="font-semibold flex-1" style={{ color: "var(--ink)" }}>
                       {place.name}
                     </h3>
-                    {place.overall_rating !== null && place.overall_rating !== undefined && (
+                    {place.overall_rating != null && (
                       <div className="flex items-center gap-1.5 flex-shrink-0">
                         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" style={{ color: "var(--accent)" }}>
                           <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
@@ -144,7 +144,7 @@ export default function SpotsPage() {
                     </p>
                   )}
 
-                  {place.overall_rating !== null && place.overall_rating !== undefined && (
+                  {place.overall_rating != null && (
                     <div className="flex flex-wrap gap-1.5">
                       {generateCategoryTags(place).map((tag) => (
                         <span
