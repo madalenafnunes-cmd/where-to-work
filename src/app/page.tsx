@@ -123,7 +123,7 @@ export default function LandingPage() {
             />
             <button
               type="submit"
-              disabled={!searchInput.trim() || isSearching}
+              disabled={!searchInput.trim()}
               className="px-6 py-3 rounded-full font-medium transition flex items-center gap-2"
               style={{
                 background: searchInput.trim() ? "var(--accent)" : "var(--line)",
