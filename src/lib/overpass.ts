@@ -29,14 +29,12 @@ export const MAX_QUERY_AREA_DEG2 = 0.25;
 function buildQuery(b: BBox): string {
   const bbox = `${b.south},${b.west},${b.north},${b.east}`;
   return `
-[out:json][timeout:25];
+[out:json][timeout:10];
 (
   node["amenity"="cafe"](${bbox});
   way["amenity"="cafe"](${bbox});
   node["amenity"="coworking_space"](${bbox});
   way["amenity"="coworking_space"](${bbox});
-  node["amenity"="restaurant"]["cuisine"="coffee_shop"](${bbox});
-  way["amenity"="restaurant"]["cuisine"="coffee_shop"](${bbox});
 );
 out center tags;
   `.trim();

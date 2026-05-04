@@ -25,7 +25,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import type { Favorite } from "@/lib/favorites";
 
 const DEFAULT_CENTER: [number, number] = [38.7223, -9.1393]; // Lisbon, just as a fallback first-paint
-const DEBOUNCE_MS = 500;
+const DEBOUNCE_MS = 300;
 
 function toBBox(b: ReturnType<ReturnType<typeof useMap>["getBounds"]>): BBox {
   return {
