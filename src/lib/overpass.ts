@@ -1,4 +1,5 @@
 import type { BBox, OsmPlace, OsmElementType } from "./types";
+import { getCached, setCached } from "./cache";
 
 // Public Overpass mirrors — we try them in order until one answers with 200.
 // The main overpass-api.de sometimes returns 406 from browser origins; the
@@ -11,7 +12,7 @@ const OVERPASS_ENDPOINTS = [
 
 // Session-scoped cache: key is a rounded bbox string, value is the result.
 // Rounding to 3 decimals (~110m) so small pan jitter hits the cache.
-const cache = new Map<string, OsmPlace[]>();
+const sessionCache = new Map<string, OsmPlace[]>();
 
 function bboxKey(b: BBox): string {
   const r = (n: number) => n.toFixed(3);
@@ -59,8 +60,17 @@ export async function fetchVenuesInBBox(
   signal?: AbortSignal,
 ): Promise<OsmPlace[]> {
   const key = bboxKey(bbox);
-  const cached = cache.get(key);
-  if (cached) return cached;
+
+  // Check session cache first (fast, survives this session)
+  const sessionCached = sessionCache.get(key);
+  if (sessionCached) return sessionCached;
+
+  // Check localStorage cache (survives page reload, valid for 7 days)
+  const persistentCached = getCached<OsmPlace[]>(`overpass_${key}`, 7 * 24 * 60 * 60 * 1000);
+  if (persistentCached) {
+    sessionCache.set(key, persistentCached);
+    return persistentCached;
+  }
 
   if (bboxAreaDeg2(bbox) > MAX_QUERY_AREA_DEG2) {
     throw new Error("ZOOM_IN");
@@ -70,9 +80,18 @@ export async function fetchVenuesInBBox(
   const querystring = "?data=" + encodeURIComponent(buildQuery(bbox));
   let res: Response | null = null;
   let lastErr: unknown = null;
+
+  // Try each endpoint with a shorter timeout (5s instead of waiting forever)
   for (const endpoint of OVERPASS_ENDPOINTS) {
     try {
+      // Create a timeout controller
+      const timeoutId = setTimeout(() => {
+        signal?.dispatchEvent(new Event("abort"));
+      }, 5000);
+
       const r = await fetch(endpoint + querystring, { method: "GET", signal });
+      clearTimeout(timeoutId);
+
       if (r.ok) {
         res = r;
         break;
@@ -107,6 +126,8 @@ export async function fetchVenuesInBBox(
       tags: el.tags ?? {},
     }));
 
-  cache.set(key, places);
+  // Cache in both session and persistent storage
+  sessionCache.set(key, places);
+  setCached(`overpass_${key}`, places);
   return places;
 }
