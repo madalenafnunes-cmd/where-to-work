@@ -1,0 +1,108 @@
+"use client";
+
+import { useState } from "react";
+import dynamic from "next/dynamic";
+import Sidebar from "@/components/Sidebar";
+import TopNav from "@/components/TopNav";
+
+// Leaflet touches `window` on import, so load the map client-side only.
+const Map = dynamic(() => import("@/components/Map"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center bg-[var(--bg)] text-[var(--ink-muted)]">
+      Loading map…
+    </div>
+  ),
+});
+
+export default function ExplorePage() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  return (
+    <main className="h-dvh w-dvw flex flex-col md:flex-row bg-[var(--bg)]">
+      {/* Top Navigation */}
+      <TopNav />
+
+      {/* Sidebar: hidden on mobile, visible on desktop, collapsible */}
+      <div
+        className={`hidden md:flex flex-col transition-all duration-300 ease-in-out overflow-hidden ${
+          sidebarOpen ? "md:w-[380px]" : "md:w-0"
+        }`}
+      >
+        <Sidebar />
+      </div>
+
+      {/* Map area */}
+      <div className="flex-1 flex flex-col pt-16 md:pt-0">
+        {/* Desktop: Sidebar toggle (on the edge of sidebar, centered vertically) */}
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="hidden md:flex fixed top-1/2 z-[500] h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition -translate-y-1/2"
+          style={{ left: sidebarOpen ? "calc(380px - 22px)" : "calc(-22px)", color: "var(--ink)" }}
+          aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+        >
+          {sidebarOpen ? (
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="15" y1="19" x2="15" y2="5" />
+              <polyline points="8 12 15 5 15 19" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="9" y1="19" x2="9" y2="5" />
+              <polyline points="16 12 9 5 9 19" />
+            </svg>
+          )}
+        </button>
+
+        {/* Map */}
+        <Map />
+      </div>
+
+      {/* Mobile: Hamburger menu button (hidden when drawer is open) */}
+      {!drawerOpen && (
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="md:hidden fixed left-4 z-[9999] flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition pointer-events-auto"
+          style={{ color: "var(--ink)", bottom: "max(4rem, calc(env(safe-area-inset-bottom) + 1.5rem))" }}
+          aria-label="Open filters"
+          type="button"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+      )}
+
+      {/* Mobile sidebar drawer (outside map container) */}
+      {drawerOpen && (
+        <div className="md:hidden fixed inset-0 z-[9998] flex flex-col drawer-enter">
+          {/* Overlay */}
+          <div
+            className="flex-1 bg-black/20 backdrop-blur-sm overlay-enter"
+            onClick={() => setDrawerOpen(false)}
+          />
+          {/* Drawer */}
+          <div className="bg-[var(--surface)] max-h-[75vh] overflow-y-auto rounded-t-2xl shadow-soft">
+            <div className="sticky top-0 px-6 py-2 flex justify-center border-b border-[var(--line)]">
+              <div className="h-1 w-12 rounded-full bg-[var(--line)]" />
+            </div>
+            <Sidebar />
+            {/* Close button for drawer */}
+            <div className="p-4 border-t border-[var(--line)]">
+              <button
+                onClick={() => setDrawerOpen(false)}
+                className="w-full rounded-full px-4 py-3 text-sm font-medium transition"
+                style={{ background: "var(--accent)", color: "white" }}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </main>
+  );
+}

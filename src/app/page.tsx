@@ -3,22 +3,35 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { reverseGeocode } from "@/lib/nominatim";
 
 export default function LandingPage() {
   const router = useRouter();
   const [searchInput, setSearchInput] = useState("");
+  const [geoLoading, setGeoLoading] = useState(false);
   const geoState = useGeolocation();
 
-  const handleFindNearMe = () => {
+  const handleFindNearMe = async () => {
     if (geoState.status === "granted") {
-      router.push(`/explore?lat=${geoState.lat}&lng=${geoState.lng}`);
+      setGeoLoading(true);
+      try {
+        // Convert coordinates to location name
+        const locationName = await reverseGeocode(geoState.lat, geoState.lng);
+        router.push(`/spots?near=${encodeURIComponent(locationName)}`);
+      } catch (error) {
+        console.error("Reverse geocoding failed:", error);
+        // Fallback: use coordinates
+        router.push(`/spots?near=${geoState.lat},${geoState.lng}`);
+      } finally {
+        setGeoLoading(false);
+      }
     }
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchInput.trim()) {
-      router.push(`/explore?q=${encodeURIComponent(searchInput)}`);
+      router.push(`/spots?near=${encodeURIComponent(searchInput)}`);
     }
   };
 
@@ -74,15 +87,15 @@ export default function LandingPage() {
           {/* Find near me button */}
           <button
             onClick={handleFindNearMe}
-            disabled={geoState.status === "pending"}
+            disabled={geoState.status === "pending" || geoLoading}
             className="w-full py-3 px-4 rounded-full font-medium transition flex items-center justify-center gap-2"
             style={{
               background: "var(--accent)",
               color: "white",
-              opacity: geoState.status === "pending" ? 0.7 : 1,
+              opacity: geoState.status === "pending" || geoLoading ? 0.7 : 1,
             }}
           >
-            {geoState.status === "pending" ? (
+            {geoState.status === "pending" || geoLoading ? (
               <>
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 Finding location…
@@ -136,19 +149,6 @@ export default function LandingPage() {
               </svg>
             </button>
           </form>
-
-          {/* Discover button */}
-          <button
-            onClick={() => router.push("/explore")}
-            className="w-full py-3 px-4 rounded-full font-medium transition border"
-            style={{
-              borderColor: "var(--accent)",
-              color: "var(--accent)",
-              background: "transparent",
-            }}
-          >
-            Discover Now
-          </button>
         </div>
       </div>
 
