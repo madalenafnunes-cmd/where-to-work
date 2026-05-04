@@ -14,19 +14,20 @@ export default function LandingPage() {
   const handleFindNearMe = async () => {
     if (geoState.status === "granted") {
       setGeoLoading(true);
+      const { lat, lng } = geoState;
       try {
         // Convert coordinates to location name
-        const locationName = await reverseGeocode(geoState.lat, geoState.lng);
+        const locationName = await reverseGeocode(lat, lng);
         if (locationName) {
           router.push(`/spots?near=${encodeURIComponent(locationName)}`);
         } else {
           // Fallback: use coordinates if reverse geocoding fails
-          router.push(`/spots?near=${geoState.lat},${geoState.lng}`);
+          router.push(`/spots?near=${lat},${lng}`);
         }
       } catch (error) {
         console.error("Reverse geocoding failed:", error);
         // Fallback: use coordinates
-        router.push(`/spots?near=${geoState.lat},${geoState.lng}`);
+        router.push(`/spots?near=${lat},${lng}`);
       } finally {
         setGeoLoading(false);
       }
