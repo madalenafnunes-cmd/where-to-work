@@ -17,7 +17,12 @@ export default function LandingPage() {
       try {
         // Convert coordinates to location name
         const locationName = await reverseGeocode(geoState.lat, geoState.lng);
-        router.push(`/spots?near=${encodeURIComponent(locationName)}`);
+        if (locationName) {
+          router.push(`/spots?near=${encodeURIComponent(locationName)}`);
+        } else {
+          // Fallback: use coordinates if reverse geocoding fails
+          router.push(`/spots?near=${geoState.lat},${geoState.lng}`);
+        }
       } catch (error) {
         console.error("Reverse geocoding failed:", error);
         // Fallback: use coordinates
