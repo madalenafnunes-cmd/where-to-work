@@ -138,7 +138,7 @@ export default function SpotsPage() {
                     </p>
                   )}
 
-                  {place.rating_count !== null && place.rating_count > 0 && (
+                  {place.rating_count != null && place.rating_count > 0 && (
                     <p className="text-xs mb-2" style={{ color: "var(--ink-muted)" }}>
                       {place.rating_count} rating{place.rating_count !== 1 ? "s" : ""}
                     </p>
