@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createCustomPlace } from "@/lib/customPlaces";
 import type { OsmPlace } from "@/lib/types";
+import StarRating from "./StarRating";
 
 type Props = {
   lat: number;
@@ -16,6 +17,14 @@ export default function AddPlaceSheet({ lat, lng, onCancel, onCreated }: Props) 
   const [address, setAddress] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [laptopFriendly, setLaptopFriendly] = useState<number | null>(null);
+  const [noiseLevel, setNoiseLevel] = useState<number | null>(null);
+  const [plugs, setPlugs] = useState<number | null>(null);
+  const [wifi, setWifi] = useState<number | null>(null);
+  const [price, setPrice] = useState<number | null>(null);
+  const [food, setFood] = useState<number | null>(null);
+  const [coffee, setCoffee] = useState<number | null>(null);
+  const [notes, setNotes] = useState("");
 
   async function submit() {
     if (!name.trim()) return;
@@ -89,8 +98,50 @@ export default function AddPlaceSheet({ lat, lng, onCancel, onCreated }: Props) 
             />
           </div>
 
-          <div className="rounded-lg bg-zinc-50 px-3 py-2 text-xs text-zinc-600">
-            You&apos;ll be able to rate it right after. This place will show up as a purple pin for everyone using the app.
+          <div className="border-t border-zinc-200 pt-4">
+            <p className="text-xs font-medium text-zinc-600 mb-3">Rate this place (optional)</p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-zinc-700 mb-1 block">💻 Laptop-Friendly</label>
+                <StarRating value={laptopFriendly} onChange={setLaptopFriendly} size={20} />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-zinc-700 mb-1 block">🔊 Noise Level</label>
+                <StarRating value={noiseLevel} onChange={setNoiseLevel} size={20} />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-zinc-700 mb-1 block">🔌 Plugs & Outlets</label>
+                <StarRating value={plugs} onChange={setPlugs} size={20} />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-zinc-700 mb-1 block">📶 Wi-Fi Quality</label>
+                <StarRating value={wifi} onChange={setWifi} size={20} />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-zinc-700 mb-1 block">💰 Price</label>
+                <StarRating value={price} onChange={setPrice} size={20} />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-zinc-700 mb-1 block">🍽️ Food Quality</label>
+                <StarRating value={food} onChange={setFood} size={20} />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-zinc-700 mb-1 block">☕ Coffee Quality</label>
+                <StarRating value={coffee} onChange={setCoffee} size={20} />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-zinc-700">Additional Notes</label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="e.g. Closing hours, WiFi password, special info"
+                  maxLength={300}
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 outline-none focus:border-zinc-400 resize-none"
+                  rows={2}
+                />
+              </div>
+            </div>
           </div>
 
           {error && (

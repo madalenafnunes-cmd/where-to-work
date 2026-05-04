@@ -19,10 +19,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import type { BBox, OsmPlace } from "@/lib/types";
 import PlaceSheet from "./PlaceSheet";
 import SearchBox from "./SearchBox";
-import FavoritesPanel from "./FavoritesPanel";
 import AddPlaceSheet from "./AddPlaceSheet";
-import { useFavorites } from "@/hooks/useFavorites";
-import type { Favorite } from "@/lib/favorites";
 
 const DEFAULT_CENTER: [number, number] = [38.7223, -9.1393]; // Lisbon, just as a fallback first-paint
 const DEBOUNCE_MS = 300;
@@ -175,8 +172,6 @@ export default function Map() {
 
   const [selectedPlace, setSelectedPlace] = useState<OsmPlace | null>(null);
   const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
-  const [favPanelOpen, setFavPanelOpen] = useState(false);
-  const favs = useFavorites();
 
   const userLoc = geo.status === "granted" ? { lat: geo.lat, lng: geo.lng } : null;
 
@@ -240,12 +235,6 @@ export default function Map() {
     })();
     return () => { aborted = true; };
   }, [selectedPlace, summaries]);
-
-  function pickFavorite(f: Favorite) {
-    setFlyTarget({ lat: f.lat, lng: f.lng, zoom: 16 });
-    setSelectedPlace({ osmId: f.osmId, name: f.name, lat: f.lat, lng: f.lng, tags: {} });
-    setFavPanelOpen(false);
-  }
 
   return (
     <div className="relative h-full w-full" style={{ touchAction: "none" }}>
@@ -402,7 +391,7 @@ export default function Map() {
         }}
         aria-label={placing ? "Cancel adding place" : "Add a place"}
         aria-pressed={placing}
-        className="absolute bottom-20 right-4 z-[1000] flex h-11 w-11 items-center justify-center rounded-full shadow-soft transition-colors"
+        className="absolute bottom-20 right-4 z-[1000] flex items-center justify-center gap-2 px-4 py-3 rounded-full shadow-soft transition-colors font-medium text-sm"
         style={{
           background: placing ? "var(--accent)" : "white",
           color: placing ? "white" : "var(--ink)",
@@ -414,9 +403,12 @@ export default function Map() {
             <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         ) : (
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
+          <>
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <span>Add a place</span>
+          </>
         )}
       </button>
 
@@ -429,18 +421,6 @@ export default function Map() {
         </div>
       )}
 
-      {/* Favorites button (top-right) */}
-      <button
-        onClick={() => setFavPanelOpen(true)}
-        className="absolute right-4 top-4 z-[1000] flex h-11 items-center gap-2 rounded-full bg-white px-3 text-sm font-medium shadow-soft border border-[var(--line)] hover:bg-[var(--bg)] transition-colors"
-        style={{ color: "var(--ink)" }}
-        aria-label="Open favorites"
-      >
-        <svg viewBox="0 0 24 24" className={`h-5 w-5 ${favs.length > 0 ? "text-[#ff5a5f]" : "text-[var(--ink-muted)]"}`} fill={favs.length > 0 ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-        </svg>
-        {favs.length > 0 && <span className="text-xs" style={{ color: "var(--ink-muted)" }}>{favs.length}</span>}
-      </button>
 
       {selectedPlace && (
         <PlaceSheet
@@ -452,13 +432,6 @@ export default function Map() {
         />
       )}
 
-      {favPanelOpen && (
-        <FavoritesPanel
-          userLoc={userLoc}
-          onPick={pickFavorite}
-          onClose={() => setFavPanelOpen(false)}
-        />
-      )}
 
       {pendingLoc && (
         <AddPlaceSheet

@@ -14,12 +14,31 @@ export default function FavoritesPage() {
 
       <div className="pt-20 pb-12 px-6">
         <div className="max-w-4xl mx-auto">
-          <h1 className="type-h2 mb-2" style={{ color: "var(--ink)" }}>
-            Favorites
-          </h1>
-          <p className="type-meta mb-8">
-            {favorites.length} place{favorites.length !== 1 ? "s" : ""} saved
-          </p>
+          <div className="flex items-center justify-between gap-4 mb-8">
+            <div>
+              <h1 className="type-h2 mb-2" style={{ color: "var(--ink)" }}>
+                Favorites
+              </h1>
+              <p className="type-meta">
+                {favorites.length} place{favorites.length !== 1 ? "s" : ""} saved
+              </p>
+            </div>
+            <Link
+              href="/explore"
+              className="flex items-center justify-center h-10 w-10 rounded-full transition"
+              style={{
+                background: "var(--accent)",
+                color: "white",
+              }}
+              aria-label="Close and return to map"
+              title="Return to map"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </Link>
+          </div>
 
           {favorites.length === 0 ? (
             <div className="rounded-2xl p-8 text-center" style={{ background: "var(--surface)" }}>
