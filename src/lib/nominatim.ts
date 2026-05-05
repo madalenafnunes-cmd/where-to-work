@@ -2,6 +2,7 @@
 // Docs: https://operations.osmfoundation.org/policies/nominatim/
 
 import { getCached, setCached } from "./cache";
+import { deduplicatedRequest } from "./requestDedup";
 
 const BASE = "https://nominatim.openstreetmap.org";
 const USER_AGENT_NOTE = "where-to-work/0.1 (https://github.com/)";
@@ -30,26 +31,31 @@ export async function searchPlace(
 ): Promise<NominatimSearchResult[]> {
   if (!query.trim()) return [];
 
+  const queryLower = query.toLowerCase();
+  const cacheKey = `nominatim_search_${queryLower}`;
+
   // Check cache first (valid for 24 hours)
-  const cacheKey = `nominatim_search_${query.toLowerCase()}`;
   const cached = getCached<NominatimSearchResult[]>(cacheKey, 24 * 60 * 60 * 1000);
   if (cached) return cached;
 
-  await throttle();
-  const url = new URL(`${BASE}/search`);
-  url.searchParams.set("q", query);
-  url.searchParams.set("format", "json");
-  url.searchParams.set("limit", "5");
-  url.searchParams.set("addressdetails", "0");
-  const res = await fetch(url.toString(), {
-    headers: { Accept: "application/json", "X-App": USER_AGENT_NOTE },
-    signal,
-  });
-  if (!res.ok) throw new Error(`Nominatim HTTP ${res.status}`);
+  // Use deduplication to prevent duplicate requests while one is in-flight
+  return deduplicatedRequest(`search_place_${queryLower}`, async () => {
+    await throttle();
+    const url = new URL(`${BASE}/search`);
+    url.searchParams.set("q", query);
+    url.searchParams.set("format", "json");
+    url.searchParams.set("limit", "5");
+    url.searchParams.set("addressdetails", "0");
+    const res = await fetch(url.toString(), {
+      headers: { Accept: "application/json", "X-App": USER_AGENT_NOTE },
+      signal,
+    });
+    if (!res.ok) throw new Error(`Nominatim HTTP ${res.status}`);
 
-  const results = (await res.json()) as NominatimSearchResult[];
-  setCached(cacheKey, results);
-  return results;
+    const results = (await res.json()) as NominatimSearchResult[];
+    setCached(cacheKey, results);
+    return results;
+  });
 }
 
 export async function reverseGeocode(

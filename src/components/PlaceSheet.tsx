@@ -80,26 +80,28 @@ export default function PlaceSheet({ place, summary, userLoc, onClose, onRatingS
     try {
       // Debug: Log what we're trying to save
       const contributorId = getContributorId();
+      const placeData = {
+        osm_id: place.osmId,
+        name: place.name,
+        address,
+        lat: place.lat,
+        lng: place.lng,
+      };
       console.log("Submitting rating:", {
         place: { osmId: place.osmId, name: place.name },
         contributorId,
+        placeData,
         rating: r,
       });
 
       // Ensure the place exists. The seed covers Lisbon demo rows, but any
       // new venue has to be inserted on first rating. Upsert by osm_id is safe
       // thanks to the unique constraint.
-      console.log("Attempting to upsert place...");
+      console.log("Attempting to upsert place with data:", placeData);
       const { data: placeRow, error: placeErr } = await sb
         .from("places")
         .upsert(
-          {
-            osm_id: place.osmId,
-            name: place.name,
-            address,
-            lat: place.lat,
-            lng: place.lng,
-          },
+          placeData,
           { onConflict: "osm_id" },
         )
         .select("id")

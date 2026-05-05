@@ -1,5 +1,6 @@
 import type { BBox, OsmPlace, OsmElementType } from "./types";
 import { getCached, setCached } from "./cache";
+import { deduplicatedRequest } from "./requestDedup";
 
 // Public Overpass mirrors — we try them in order until one answers with 200.
 // The main overpass-api.de sometimes returns 406 from browser origins; the
